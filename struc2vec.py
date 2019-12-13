@@ -32,7 +32,11 @@ class Struc2Vec():
                 dist_func = cost
     
     def compute_ordered_degreelist(self,max_num_layers):
-        
+        degreelist = {}
+        vertices = self.idx 
+        for v in vertices:
+            degreelist[v] = self.get_ordered_degreelist_node(v,max_num_layers)
+        return degreelist
 
     def get_ordered_degreelist_node(self,root,max_num_layers):
         if max_num_layers is None:
@@ -40,6 +44,10 @@ class Struc2Vec():
         
         order_degree_sequence_dict = {}
         visited = [False]*len(self.graph.nodes())
-        dque = collections.dque()
+        queue = collections.dqueue()
         level = 0 
-        dque.append(root)
+        queue.append(root)
+        visited[root] = True 
+
+        while(len(queue)>0 and level <= max_num_layers):
+            
