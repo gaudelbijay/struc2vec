@@ -67,7 +67,7 @@ class Struc2Vec():
                     nei_idx = node2idx[nei]
                     if not visited[nei_idx]:
                         visited[nei_idx]=True
-                        queue.append(nei)
+                        queue.append(nei_idx)
                 count -=1
             if self.opt1_reduce_len:
                 ordered_degree_list = [(degree,freq) for degree,freq in degree_list.items()]
