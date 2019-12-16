@@ -21,15 +21,6 @@ class Struc2Vec():
         
         
         self._embeddings = {}
-
-    def calc_structural_distance(self,max_num_layers,workers=1,verbose=0):
-        if os.path.exists(self.temp_path+'structural_dist.pkl'):
-            structural_dist = pd.read_pickle(self.temp_path+'structural_dist.pkl')
-        else:
-            if self.opt1_reduce_len:
-                dist_func = cost_max 
-            else:
-                dist_func = cost
     
     def compute_ordered_degreelist(self,max_num_layers):
         degreelist = {}
@@ -78,3 +69,32 @@ class Struc2Vec():
             level += 1
 
         return ordered_degree_sequence_dict
+
+
+    def calc_structural_distance(self,max_num_layers,workers=1,verbose=0):
+        if os.path.exists(self.temp_path+'structural_dist.pkl'):
+            structural_dist = pd.read_pickle(self.temp_path+'structural_dist.pkl')
+        else:
+            if self.opt1_reduce_len:
+                dist_func = cost_max 
+            else:
+                dist_func = cost
+    
+
+    def create_vector(self):
+        degrees = {}
+        sorted_degrees = set()
+        for v in self.idx:
+            degree = self.graph[self.idx2node[v]]
+            sorted_degrees.add(degree)
+            if degree not in degrees:
+                degrees[degree] = {}
+                degrees[degree][vertices] = []
+            degrees[degree][vertices].append(v)
+        sorted_degrees = np.array(list(sorted_degrees),dtype='int')
+        sorted_degrees = np.sort(sorted_degrees)
+
+        length = len(sorted_degrees)
+        for index,val in enumerate(sorted_degrees):
+            if index>0:
+                degrees[]
