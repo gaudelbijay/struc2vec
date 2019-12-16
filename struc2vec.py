@@ -140,8 +140,9 @@ def get_vertices(v,degree_v,degrees,n_nodes):
             raise StopIteration 
 
         degree_now = verifyDegrees(degrees, degree_v, degree_a, degree_b)
-        
 
+def verifyDegrees(degrees,degree_v,degree_a,degree_b):
+    
 
 
 
