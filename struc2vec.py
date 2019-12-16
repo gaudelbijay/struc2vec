@@ -142,7 +142,16 @@ def get_vertices(v,degree_v,degrees,n_nodes):
         degree_now = verifyDegrees(degrees, degree_v, degree_a, degree_b)
 
 def verifyDegrees(degrees,degree_v,degree_a,degree_b):
-    
+    if(degree_b == -1):
+        degree_now = degree_a
+    elif(degree_a == -1):
+        degree_now = degree_b
+    elif(abs(degree_b - degree_v_root) < abs(degree_a - degree_v_root)):
+        degree_now = degree_b
+    else:
+        degree_now = degree_a
+
+    return degree_now
 
 
 
