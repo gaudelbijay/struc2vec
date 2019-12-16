@@ -79,8 +79,21 @@ class Struc2Vec():
                 dist_func = cost_max 
             else:
                 dist_func = cost
-    
+            if os.path.exists(self.temp+'degreelist.pkl'):
+                degreeList = pd.read_pickle(self.temp_path+'degreelist.pkl')
+            else:
+                degreelist = self.compute_ordered_degreelist(max_num_layers)
+                pd.to_pickle(degreelist,self.temp_path+'degreelist.pkl')
 
+            if self.opt2_reduce_sim_calc:
+                degrees = self.create_vector()
+                degreeListSelected = {}
+                vertices = {}
+                n_nodes = len(self.idx)
+                for v in self.idx:
+                    nbs = get_vertices(v,len(self.graph[self.idx2node[v]]),degrees,n_nodes)
+                    vertices = [nbs]
+    
     def create_vector(self):
         degrees = {}
         sorted_degrees = set()
@@ -97,4 +110,55 @@ class Struc2Vec():
         length = len(sorted_degrees)
         for index,val in enumerate(sorted_degrees):
             if index>0:
-                degrees[]
+                degrees[index]['before'] = sorted_degrees[index-1]
+            if index < length-1:
+                degrees[index]['after'] = sorted_degrees[index+1]
+        
+        return degrees 
+
+
+def get_vertices(v,degree_v,degrees,n_nodes):
+    a_vertices_selected = 2*math.log(n_nodes,2)
+    vertices = []
+    try:
+        c_v = 0 
+        for v2 in degree[degree_v]['vertices']:
+            if (v !=v2):
+                vertices.append(v2)
+                c_v +=1
+                if (c_v>a_vertices_selected):
+                    raise StopIteration
+        if ('before' not in degrees[degree_v]):
+            degree_b = -1
+        else: degree_b = degrees[degree_v]['before']
+            
+        if ('after' not in degrees[degree_v]):
+            degree_a = -1 
+        else: degree_a = degrees[degree_v]['after']
+
+        if (degree_a == -1 and degree_b == -1):
+            raise StopIteration 
+
+        degree_now = verifyDegrees(degrees, degree_v, degree_a, degree_b)
+        
+
+
+
+
+def cost(a,b):
+    ep = 0.5 
+    m = max(a,b)+ep
+    mi = min(a,b)+ep 
+    return ((m/mi)-1)
+
+def cost_min(a,b):
+    ep = 0.5 
+    m = max(a[0],b[0])+ep
+    mi = min(a[0],b[0])+ep
+    return ((m/mi)-1)*min(a[1],b[1])
+
+def cost_max(a,b):
+    ep = 0.5 
+    m = max(a[0],b[0])+ep
+    mi = min(a[0],b[0])+ep
+    return ((m/mi)-1)*max(a[1],b[1])
