@@ -82,8 +82,8 @@ class Struc2Vec():
             if os.path.exists(self.temp+'degreelist.pkl'):
                 degreeList = pd.read_pickle(self.temp_path+'degreelist.pkl')
             else:
-                degreelist = self.compute_ordered_degreelist(max_num_layers)
-                pd.to_pickle(degreelist,self.temp_path+'degreelist.pkl')
+                degreeList = self.compute_ordered_degreelist(max_num_layers)
+                pd.to_pickle(degreeList,self.temp_path+'degreelist.pkl')
 
             if self.opt2_reduce_sim_calc:
                 degrees = self.create_vector()
@@ -92,7 +92,25 @@ class Struc2Vec():
                 n_nodes = len(self.idx)
                 for v in self.idx:
                     nbs = get_vertices(v,len(self.graph[self.idx2node[v]]),degrees,n_nodes)
-                    vertices = [nbs]
+                    vertices[v] = nbs 
+                    degreeListsSelected[v] = degreeList[v]
+                for n in nbs:
+                        degreeListsSelected[n] = degreeList[n] # store dist of nbs
+            else:
+                vertices = {}
+                for v in degreeList:
+                    vertices[v] = [vd for vd in degreeList.keys() if vd > v]
+
+            results = Parallel(n_jobs=workers, verbose=verbose,)(
+                delayed(compute_dtw_dist)(part_list, degreeList, dist_func) for part_list in partition_dict(vertices, workers))
+            dtw_dist = dict(ChainMap(*results))
+
+            structural_dist = convert_dtw_struc_dist(dtw_dist)
+            pd.to_pickle(structural_dist, self.temp_path + 'structural_dist.pkl')
+
+        return structural_dist
+
+
     
     def create_vector(self):
         degrees = {}
