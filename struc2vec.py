@@ -5,6 +5,7 @@ import collections
 import numpy as np 
 import pandas as pd 
 from utils import partition_dict,preprocess_nxgraph
+from fastdtw import fastdtw
 
 class Struc2Vec():
     def __init__(self, graph, walk_length=10, num_walks=100, workers=1, verbose=0, stay_prob=0.3, opt1_reduce_len=True, 
@@ -221,4 +222,15 @@ def cost_max(a,b):
     return ((m/mi)-1)*max(a[1],b[1])
 
 def compute_dtw_dist(part_list, degreeList, dist_func):
-    
+    dtw_dist = {}
+    for v1, nbs in part_list:
+        lists_v1 = degreeList[v1]  # lists_v1 :orderd degree list of v1
+        for v2 in nbs:
+            lists_v2 = degreeList[v2]  # lists_v1 :orderd degree list of v2
+            max_layer = min(len(lists_v1), len(lists_v2))  # valid layer
+            dtw_dist[v1, v2] = {}
+            for layer in range(0, max_layer):
+                dist, path = fastdtw(
+                    lists_v1[layer], lists_v2[layer], radius=1, dist=dist_func)
+                dtw_dist[v1, v2][layer] = dist
+    return dtw_dist
