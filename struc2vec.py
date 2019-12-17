@@ -219,3 +219,5 @@ def cost_max(a,b):
     m = max(a[0],b[0])+ep
     mi = min(a[0],b[0])+ep
     return ((m/mi)-1)*max(a[1],b[1])
+
+def compute_dtw_dist(part_list, degreeList, dist_func):
