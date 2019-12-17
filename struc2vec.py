@@ -122,7 +122,7 @@ def get_vertices(v,degree_v,degrees,n_nodes):
     vertices = []
     try:
         c_v = 0 
-        for v2 in degree[degree_v]['vertices']:
+        for v2 in degrees[degree_v]['vertices']:
             if (v !=v2):
                 vertices.append(v2)
                 c_v +=1
@@ -139,9 +139,38 @@ def get_vertices(v,degree_v,degrees,n_nodes):
         if (degree_a == -1 and degree_b == -1):
             raise StopIteration 
 
-        degree_now = verifyDegrees(degrees, degree_v, degree_a, degree_b)
+        degree_now = verifyDegrees(degree_v, degree_a, degree_b)
 
-def verifyDegrees(degrees,degree_v,degree_a,degree_b):
+        while True:
+            for v2 in degrees[degree_now]['vertices']:
+                vertices.append(v2)
+                c_v +=1
+                if (c_v>a_vertices_selected):
+                    raise StopIteration
+            if (degree_now == degree_b):
+                if ('before' not in degrees[degree_b]):
+                    degree_b = -1
+                else:
+                    degree_b = degrees[degree_b]['before']
+            else:
+                if ('after' not in degrees[degree_a]):
+                    degree_a = -1
+                else:
+                    degree_a = degrees[degree_a]['after']
+
+            if (degree_b == -1 and degree_a == -1):
+                raise StopIteration
+
+            degree_now = verifyDegrees(degrees, degree_v, degree_a, degree_b)
+
+    except StopIteration:
+        return list(vertices)
+
+    return list(vertices)
+                
+
+
+def verifyDegrees(degree_v_root,degree_a,degree_b):
     if(degree_b == -1):
         degree_now = degree_a
     elif(degree_a == -1):
