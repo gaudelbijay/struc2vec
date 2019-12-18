@@ -179,6 +179,19 @@ class Struc2Vec():
 
         return layers_accept, layers_alias
     
+    def get_embeddings(self,):
+        if self.w2v_model is None:
+            print("model not train")
+            return {}
+
+        self._embeddings = {}
+        for word in self.graph.nodes():
+            self._embeddings[word] = self.w2v_model.wv[word]
+
+        return self._embeddings
+
+    def _compute_ordered_degreelist(self, max_num_layers):
+
     def create_vector(self):
         degrees = {}
         sorted_degrees = set()
