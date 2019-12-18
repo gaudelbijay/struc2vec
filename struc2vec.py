@@ -121,6 +121,25 @@ class Struc2Vec():
 
         return structural_dist
 
+    def _get_layer_rep(self, pair_distances):
+        layer_distances = {}
+        layer_adj = {}
+        for v_pair, layer_dist in pair_distances.items():
+            for layer, distance in layer_dist.items():
+                vx = v_pair[0]
+                vy = v_pair[1]
+
+                layer_distances.setdefault(layer, {})
+                layer_distances[layer][vx, vy] = distance
+
+                layer_adj.setdefault(layer, {})
+                layer_adj[layer].setdefault(vx, [])
+                layer_adj[layer].setdefault(vy, [])
+                layer_adj[layer][vx].append(vy)
+                layer_adj[layer][vy].append(vx)
+
+        return layer_adj, layer_distances
+
     def _get_transition_probs(self, layers_adj, layers_distances):
         layers_alias = {}
         layers_accept = {}
