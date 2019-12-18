@@ -234,3 +234,19 @@ def compute_dtw_dist(part_list, degreeList, dist_func):
                     lists_v1[layer], lists_v2[layer], radius=1, dist=dist_func)
                 dtw_dist[v1, v2][layer] = dist
     return dtw_dist
+
+    def convert_dtw_struc_dist(distances, startLayer=1):
+        """
+        :param distances: dict of dict
+        :param startLayer:
+        :return:
+        """
+        for vertices, layers in distances.items():
+            keys_layers = sorted(layers.keys())
+            startLayer = min(len(keys_layers), startLayer)
+            for layer in range(0, startLayer):
+                keys_layers.pop(0)
+
+            for layer in keys_layers:
+                layers[layer] += layers[layer - 1]
+        return distances
