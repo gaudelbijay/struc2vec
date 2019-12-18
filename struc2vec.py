@@ -121,7 +121,44 @@ class Struc2Vec():
 
         return structural_dist
 
+    def _get_transition_probs(self, layers_adj, layers_distances):
+        layers_alias = {}
+        layers_accept = {}
 
+        for layer in layers_adj:
+
+            neighbors = layers_adj[layer]
+            layer_distances = layers_distances[layer]
+            node_alias_dict = {}
+            node_accept_dict = {}
+            norm_weights = {}
+
+            for v, neighbors in neighbors.items():
+                e_list = []
+                sum_w = 0.0
+
+                for n in neighbors:
+                    if (v, n) in layer_distances:
+                        wd = layer_distances[v, n]
+                    else:
+                        wd = layer_distances[n, v]
+                    w = np.exp(-float(wd))
+                    e_list.append(w)
+                    sum_w += w
+
+                e_list = [x / sum_w for x in e_list]
+                norm_weights[v] = e_list
+                accept, alias = create_alias_table(e_list)
+                node_alias_dict[v] = alias
+                node_accept_dict[v] = accept
+
+            pd.to_pickle(
+                norm_weights, self.temp_path + 'norm_weights_distance-layer-' + str(layer)+'.pkl')
+
+            layers_alias[layer] = node_alias_dict
+            layers_accept[layer] = node_accept_dict
+
+        return layers_accept, layers_alias
     
     def create_vector(self):
         degrees = {}
@@ -261,21 +298,3 @@ def compute_dtw_dist(part_list, degreeList, dist_func):
                 layers[layer] += layers[layer - 1]
         return distances
 
-def _get_layer_rep(self, pair_distances):
-        layer_distances = {}
-        layer_adj = {}
-        for v_pair, layer_dist in pair_distances.items():
-            for layer, distance in layer_dist.items():
-                vx = v_pair[0]
-                vy = v_pair[1]
-
-                layer_distances.setdefault(layer, {})
-                layer_distances[layer][vx, vy] = distance
-
-                layer_adj.setdefault(layer, {})
-                layer_adj[layer].setdefault(vx, [])
-                layer_adj[layer].setdefault(vy, [])
-                layer_adj[layer][vx].append(vy)
-                layer_adj[layer][vy].append(vx)
-
-        return layer_adj, layer_distances
