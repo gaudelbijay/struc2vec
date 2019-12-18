@@ -29,6 +29,18 @@ class Struc2Vec():
         for v in vertices:
             degreelist[v] = self.get_ordered_degreelist_node(v,max_num_layers)
         return degreelist
+    
+    def create_context_graph(self, max_num_layers, workers=1, verbose=0,):
+
+        pair_distances = self._compute_structural_distance(
+            max_num_layers, workers, verbose,)
+        layers_adj, layers_distances = self._get_layer_rep(pair_distances)
+        pd.to_pickle(layers_adj, self.temp_path + 'layers_adj.pkl')
+
+        layers_accept, layers_alias = self._get_transition_probs(
+            layers_adj, layers_distances)
+        pd.to_pickle(layers_alias, self.temp_path + 'layers_alias.pkl')
+        pd.to_pickle(layers_accept, self.temp_path + 'layers_accept.pkl')
 
     def get_ordered_degreelist_node(self,root,max_num_layers):
         if max_num_layers is None:
