@@ -32,13 +32,11 @@ class Struc2Vec():
     
     def create_context_graph(self, max_num_layers, workers=1, verbose=0,):
 
-        pair_distances = self._compute_structural_distance(
-            max_num_layers, workers, verbose,)
+        pair_distances = self._compute_structural_distance(max_num_layers, workers, verbose,)
         layers_adj, layers_distances = self._get_layer_rep(pair_distances)
         pd.to_pickle(layers_adj, self.temp_path + 'layers_adj.pkl')
 
-        layers_accept, layers_alias = self._get_transition_probs(
-            layers_adj, layers_distances)
+        layers_accept, layers_alias = self._get_transition_probs(layers_adj, layers_distances)
         pd.to_pickle(layers_alias, self.temp_path + 'layers_alias.pkl')
         pd.to_pickle(layers_accept, self.temp_path + 'layers_accept.pkl')
 
@@ -262,3 +260,22 @@ def compute_dtw_dist(part_list, degreeList, dist_func):
             for layer in keys_layers:
                 layers[layer] += layers[layer - 1]
         return distances
+
+def _get_layer_rep(self, pair_distances):
+        layer_distances = {}
+        layer_adj = {}
+        for v_pair, layer_dist in pair_distances.items():
+            for layer, distance in layer_dist.items():
+                vx = v_pair[0]
+                vy = v_pair[1]
+
+                layer_distances.setdefault(layer, {})
+                layer_distances[layer][vx, vy] = distance
+
+                layer_adj.setdefault(layer, {})
+                layer_adj[layer].setdefault(vx, [])
+                layer_adj[layer].setdefault(vy, [])
+                layer_adj[layer][vx].append(vy)
+                layer_adj[layer][vy].append(vx)
+
+        return layer_adj, layer_distances
